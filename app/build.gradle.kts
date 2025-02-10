@@ -39,8 +39,7 @@ android {
 }
 
 dependencies {
-    //implementation(project(":library"))
-    implementation("com.github.tashilapathum:NeverAgain:v0.1.1")
+    implementation(project(":library"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
