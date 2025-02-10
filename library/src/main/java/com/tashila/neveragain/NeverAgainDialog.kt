@@ -10,7 +10,7 @@ import android.widget.CheckBox
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-public open class NeverAgainDialog() : DialogFragment() {
+public open class NeverAgainDialog : DialogFragment() {
     private val TAG = "NeverAgain"
     private lateinit var checkBox: CheckBox
     private var isChecked: Boolean = false
