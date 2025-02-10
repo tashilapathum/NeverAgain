@@ -21,21 +21,30 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         binding.showTip.setOnClickListener { showTip() }
+        binding.showTip2.setOnClickListener { showTip2() }
     }
 
+    // Full example
     private fun showTip() {
-        val dialog = NeverAgainDialog.newInstance(
-            title = "Tip",
+        val dialog = NeverAgainDialog.create(
+            title = "Did you know?",
             message = "This is a helpful tip.",
-            checkboxText = "Don't show this again",
-            isChecked = false, // Default state of the checkbox
-            positiveButtonText = "Got it" // Custom text for the positive button
+            checkboxText = "Don't show this ever again",
+            isChecked = false,
+            positiveButtonText = "Got it"
         )
 
         dialog.setOnDismissedListener { isChecked ->
-            Log.i(TAG, "isChecked: $isChecked")
+            Log.i(TAG, "Don't want to see this thing again: $isChecked")
         }
 
         dialog.show(supportFragmentManager, "NeverAgainDialog")
+
+    }
+
+    // Minimal example
+    private fun showTip2() {
+        val dialog2 = NeverAgainDialog.create("Tip", "This is another helpful tip")
+        dialog2.show(supportFragmentManager, null)
     }
 }

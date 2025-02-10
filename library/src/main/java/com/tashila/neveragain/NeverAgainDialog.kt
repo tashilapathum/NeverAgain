@@ -10,7 +10,7 @@ import android.widget.CheckBox
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class NeverAgainDialog : DialogFragment() {
+public open class NeverAgainDialog() : DialogFragment() {
     private val TAG = "NeverAgain"
     private lateinit var checkBox: CheckBox
     private var isChecked: Boolean = false
@@ -93,7 +93,19 @@ class NeverAgainDialog : DialogFragment() {
         private const val ARG_IS_CHECKED = "is_checked"
         private const val ARG_POSITIVE_BUTTON_TEXT = "positive_button_text"
 
-        fun newInstance(
+        /**
+         * Creates a new instance of the dialog.
+         *
+         * @param title Shown at the top of the dialog.
+         *
+         * @param message The key for the `SharedPreferences` entry is generated based on this
+         * value. If the `message` is changed in the future, the dialog will be shown again.
+         *
+         * @param isChecked Checks the checkbox by default if `true`.The user's preference is
+         * stored if the checkbox is checked when the dialog is dismissed, regardless of this passed
+         * value.
+         * */
+        fun create(
             title: String,
             message: String,
             checkboxText: String = "Don't show again",
