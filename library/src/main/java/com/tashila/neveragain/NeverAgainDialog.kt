@@ -1,6 +1,7 @@
 package com.tashila.neveragain
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.DialogInterface
 import android.content.SharedPreferences
@@ -11,11 +12,10 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 public open class NeverAgainDialog : DialogFragment() {
-    private val TAG = "NeverAgain"
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var prefKey: String
     private lateinit var checkBox: CheckBox
     private var isChecked: Boolean = false
-    private lateinit var prefKey: String
-    private lateinit var sharedPref: SharedPreferences
     private var onDismissedListener: ((isChecked: Boolean) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -26,7 +26,7 @@ public open class NeverAgainDialog : DialogFragment() {
         val positiveButtonText = arguments?.getString(ARG_POSITIVE_BUTTON_TEXT) ?: "OK"
 
         // Generate the hash value for shared pref
-        val prefName = "${requireActivity().packageName}.SHARED_PREF"
+        val prefName = "${requireActivity().packageName}.$PREF_NAME"
         sharedPref = requireActivity().getSharedPreferences(prefName, MODE_PRIVATE)
         prefKey = message.hashCode().toString()
 
@@ -57,7 +57,7 @@ public open class NeverAgainDialog : DialogFragment() {
     private fun savePreference() {
         if (isChecked) {
             sharedPref.edit().putBoolean(prefKey, true).apply()
-            Log.i(TAG, "Saved preference with the key: $prefKey")
+            log("Saved preference with the key: $prefKey")
         }
         onDismissedListener?.invoke(isChecked)
     }
@@ -69,8 +69,7 @@ public open class NeverAgainDialog : DialogFragment() {
      * */
     private fun checkPreference() {
         if (sharedPref.getBoolean(prefKey, false)) {
-            Log.i(TAG, "Dialog is not shown based on the stored preference.")
-            onDismissedListener?.invoke(true)
+            log("Dialog is not shown based on the stored preference.")
             onDismissedListener = null
             dismissAllowingStateLoss()
         }
@@ -86,12 +85,45 @@ public open class NeverAgainDialog : DialogFragment() {
         return this
     }
 
+    /**
+     * Clears the stored preference to not show the dialog again with the specified `message`, so
+     * that the dialog will be shown again.
+     * */
+    fun clear(context: Context, message: String) {
+        val prefName = "${context.packageName}.$PREF_NAME"
+        val sharedPref = context.getSharedPreferences(prefName, MODE_PRIVATE)
+        val prefKey = message.hashCode().toString()
+
+        sharedPref.edit().remove(prefKey).apply()
+        log("Cleared preference with key: $prefKey")
+    }
+
+    /**
+     * Clears all stored preferences to not show the dialogs again, so all dialogs will be shown again.
+     * */
+    fun clearAll(context: Context) {
+        val prefName = "${context.packageName}.$PREF_NAME"
+        val sharedPref = context.getSharedPreferences(prefName, MODE_PRIVATE)
+
+        sharedPref.edit().clear().apply()
+        log("Cleared all preferences")
+    }
+
+    private fun log(message: String) {
+        if (isLoggingEnabled) {
+            Log.i(TAG, message)
+        }
+    }
+
     companion object {
+        private const val TAG = "NeverAgain"
+        private const val PREF_NAME = "never_again_prefs"
         private const val ARG_TITLE = "title"
         private const val ARG_MESSAGE = "message"
         private const val ARG_CHECKBOX_TEXT = "checkbox_text"
         private const val ARG_IS_CHECKED = "is_checked"
         private const val ARG_POSITIVE_BUTTON_TEXT = "positive_button_text"
+        private var isLoggingEnabled = false
 
         /**
          * Creates a new instance of the dialog.
@@ -108,20 +140,28 @@ public open class NeverAgainDialog : DialogFragment() {
         fun create(
             title: String,
             message: String,
+            positiveButtonText: String = "OK",
             checkboxText: String = "Don't show again",
-            isChecked: Boolean = false,
-            positiveButtonText: String = "OK"
+            isChecked: Boolean = false
         ): NeverAgainDialog {
             val fragment = NeverAgainDialog()
             val args = Bundle().apply {
                 putString(ARG_TITLE, title)
                 putString(ARG_MESSAGE, message)
+                putString(ARG_POSITIVE_BUTTON_TEXT, positiveButtonText)
                 putString(ARG_CHECKBOX_TEXT, checkboxText)
                 putBoolean(ARG_IS_CHECKED, isChecked)
-                putString(ARG_POSITIVE_BUTTON_TEXT, positiveButtonText)
             }
             fragment.arguments = args
             return fragment
         }
+
+        /**
+         * Toggles helpful logs for debugging.
+         * */
+        fun setLoggingEnabled(enabled: Boolean) {
+            isLoggingEnabled = enabled
+        }
+
     }
 }
