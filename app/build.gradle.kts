@@ -39,8 +39,8 @@ android {
 }
 
 dependencies {
-    //implementation(project(":library")) // for dev
-    implementation(libs.neveragain)
+    implementation(project(":library")) // for dev
+    //implementation(libs.neveragain)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
